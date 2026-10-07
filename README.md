@@ -59,7 +59,7 @@ Isi repo:
 | File | Keterangan |
 |---|---|
 | `README.md` | Dokumen ini, playbook utama |
-| `RL32-dummy-24-bulan.xlsx` | Data dummy RL 3.2, 24 sheet bulanan (2024-09 s.d. 2026-08) |
+| `RL32-dummy-24-bulan.xlsx` | Data dummy RL 3.2, 72 sheet bulanan (2025-01 s.d. 2030-12; nama file tetap untuk kompatibilitas prompt) |
 | `RL32-latihan-20-data.xlsx` | Excel uji langkah 3, maksimal 20 data (20 sheet bulanan, 2025-01 s.d. 2026-08) |
 | `sirs_lib.py` | Pustaka bersama: baca Excel, login, input sheet |
 | `input_sirs_langkah1.py` | Langkah 1: input maksimal 2 sheet bulanan |
@@ -152,7 +152,7 @@ melanjutkan ke situs SIRS yang sebenarnya.
 | Login gagal | Pastikan memakai kredensial demo sandbox: user `user1`, password `basangdata`. |
 | Data tidak masuk | Sheet bulan belum tersedia di sandbox, atau nilai bukan angka. Lihat bagian 5. |
 | Periode sudah ada di web | Bukan masalah: script otomatis memakai halaman ubah, bukan tambah. |
-| Sheet dilewati dengan pesan tahun tidak tersedia | Web saat ini hanya menyediakan tahun 2025 dan 2026. Sheet 2024 dilewati otomatis. |
+| Sheet dilewati dengan pesan tahun tidak tersedia | Web saat ini menyediakan pilihan Tahun 2025 dan 2026 saja. Sheet 2027 s.d. 2030 dilewati otomatis sampai tahunnya tersedia di web. |
 | Excel tidak terunduh dari repo | Pastikan URL raw dan nama branch benar, lihat bagian 4.2. |
 | Shortcut tidak jalan | Lihat bagian 6, pastikan target shortcut sesuai sistem operasi Anda. |
 
@@ -293,7 +293,7 @@ Jika ya:
 File contoh `RL32-dummy-24-bulan.xlsx` berisi:
 
 - Sheet `Info`: keterangan data dummy.
-- 24 sheet bulanan bernama `YYYY-MM`, dari `2024-09` sampai `2026-08`.
+- 72 sheet bulanan bernama `YYYY-MM`, dari `2025-01` sampai `2030-12`.
 - Setiap sheet bulanan: judul di baris 1-2, header di baris 4, data di
   baris 5 sampai 40 (No 1 sampai 36), dan baris TOTAL di baris 41
   (dilewati saat input).
@@ -334,8 +334,9 @@ Validasi nilai: bilangan bulat, tidak negatif. Nilai kosong diperlakukan
 sebagai 0. Cocokkan nama jenis pelayanan pada kolom B dengan label baris
 di aplikasi sebelum mengisi angka.
 
-Catatan tahun: web saat ini hanya menyediakan pilihan Tahun 2025 dan 2026,
-jadi sheet 2024 pada file contoh dilewati otomatis dengan pesan.
+Catatan tahun: script membaca pilihan Tahun di web secara dinamis. Saat
+ini web menyediakan 2025 dan 2026 saja, jadi sheet 2027 sampai 2030 pada
+file contoh dilewati otomatis dengan pesan, sampai tahunnya tersedia.
 
 ## 6. Ikon web dan shortcut lintas sistem operasi
 
@@ -417,8 +418,8 @@ Perilaku penting yang sudah ditangani script:
 
 - Login form mengandung token CSRF; Selenium mengisi form biasa.
 - Bila periode sudah ada di web, otomatis beralih ke halaman ubah.
-- Web saat ini hanya menyediakan tahun 2025 dan 2026; sheet tahun lain
-  dilewati dengan pesan.
+- Web saat ini menyediakan tahun 2025 dan 2026 (dibaca dinamis); sheet
+  tahun lain, misalnya 2027 sampai 2030, dilewati dengan pesan.
 - Baris yang seluruh nilainya 0 tidak dicentang dan tidak diinput.
 - Kolom M dan N otomatis dihitung web, tidak diinput.
 - Kotak input diisi tanpa jeda waktu; browser tetap headed.
