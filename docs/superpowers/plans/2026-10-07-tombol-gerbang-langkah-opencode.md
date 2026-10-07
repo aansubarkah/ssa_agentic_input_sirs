@@ -360,8 +360,8 @@ Sisipkan teks berikut tepat sebelum baris `## 5. Struktur file Excel RL 3.2` (se
 Di akhir setiap langkah, WAJIB memanggil `question` tool milik OpenCode,
 lalu tunggu jawaban pengguna sebelum melakukan apa pun. Satu gerbang:
 memilih opsi lanjut berarti izin menjalankan langkah berikutnya, jangan
-tanya izin lagi di chat. Setiap set tombol selalu memuat opsi `Ide
-lain`.
+tanya izin lagi di chat. Setiap set tombol selalu memuat opsi
+`Ide lain`.
 
 Format pemanggilan `question` tool: satu pertanyaan dengan `question`
 (teks pertanyaan lengkap), `header` (ringkas, maksimal 30 karakter),
