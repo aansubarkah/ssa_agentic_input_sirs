@@ -68,7 +68,7 @@ menunggu pengguna mencoba hasilnya dan memberi feedback sebelum lanjut.
 |---|---|---|---|---|
 | 1 | Script Python Selenium headed: login lalu input data | Maksimal 3 data | 0,5 detik | User mencoba script dan memberi feedback |
 | 2 | Membuat shortcut di desktop, fungsi sama dengan langkah 1 | Maksimal 3 data | 0,5 detik | User mencoba shortcut |
-| 3 | Membuat GUI pemilih file Excel, lalu mengalihkan shortcut ke GUI | Excel uji maksimal 20 data | 0,1 detik (antar input, bukan per halaman) | User mencoba GUI |
+| 3 | Membuat GUI (pilih file Excel, isi username dan password), lalu mengalihkan shortcut ke GUI | Excel uji maksimal 20 data | 0,1 detik (antar input, bukan per halaman) | User mencoba GUI |
 
 Satu "data" berarti satu baris jenis pelayanan RL 3.2 (misalnya Umum,
 Penyakit Dalam, Kesehatan Anak) pada satu sheet bulanan.
@@ -116,7 +116,10 @@ Setiap input diberi jeda 0,5 detik supaya Anda bisa melihat bagaimana
 otomasi bekerja.
 
 Pada langkah 3, Anda mendapat tampilan antarmuka (GUI) untuk memilih file
-Excel sendiri, dan jeda antar input dipersingkat menjadi 0,1 detik.
+Excel sendiri dan mengisi username serta password Anda sendiri, dan jeda
+antar input dipersingkat menjadi 0,1 detik. Username dan password itu
+disimpan otomatis sebagai file JSON di folder yang sama dengan script,
+sehingga pada pemakaian berikutnya Anda tidak perlu mengetiknya lagi.
 
 Setelah setiap proses input selesai, buka kembali webnya dan cocokkan angka
 yang tersimpan dengan file Excel. Pemeriksaan ini wajib setiap kali, dan
@@ -143,7 +146,8 @@ situs SIRS yang sebenarnya.
    situs SIRS yang sebenarnya. Jangan beralih target tanpa perintah
    eksplisit dari pengguna.
 3. Kredensial demo sudah tersedia: user `user1`, password `basangdata`.
-   Jangan meminta pengguna membuat akun atau mengirim kredensial lain.
+   Jangan meminta pengguna mengirim kredensial lewat percakapan. Mulai
+   langkah 3, pengguna mengisi username dan password sendiri pada GUI.
 4. Browser harus headed (terlihat), bukan headless, pada semua langkah,
    karena tujuan demo adalah pengguna melihat otomasi bekerja.
 5. Berhenti di akhir setiap langkah. Jangan lanjut ke langkah berikutnya
@@ -233,16 +237,24 @@ file Excel yang dipunya?
 
 Jika ya:
 
-1. Buat GUI, disarankan `tkinter` (bawaan Python): tombol pilih file
-   Excel, pilihan sheet bulanan, tombol mulai, indikator progres, dan area
-   pesan status.
-2. Buat file Excel uji berisi maksimal 20 data (20 baris jenis pelayanan)
+1. Buat GUI, disarankan `tkinter` (bawaan Python): kolom username dan
+   password (tampilan password disamakan), tombol pilih file Excel,
+   pilihan sheet bulanan, tombol mulai, indikator progres, dan area pesan
+   status.
+2. Kredensial pada GUI: isi otomatis dengan kredensial demo sandbox
+   (`user1` / `basangdata`) sebagai nilai bawaan, dan pengguna dapat
+   menggantinya. Simpan username dan password dalam file JSON, misal
+   `kredensial.json`, di folder yang sama dengan script, agar bisa
+   digunakan di masa depan oleh script itu. Tulis file JSON saat
+   pengguna menekan tombol mulai, dan baca kembali untuk mengisi kolom
+   saat GUI dibuka.
+3. Buat file Excel uji berisi maksimal 20 data (20 baris jenis pelayanan)
    yang diambil dari data dummy, misal `RL32-latihan-20-data.xlsx`.
-3. Jeda antar input hanya `time.sleep(0.1)`, dihitung antar input (antar
+4. Jeda antar input hanya `time.sleep(0.1)`, dihitung antar input (antar
    baris), bukan per halaman.
-4. Alihkan shortcut desktop yang dibuat pada langkah 2 agar menunjuk ke
+5. Alihkan shortcut desktop yang dibuat pada langkah 2 agar menunjuk ke
    script GUI langkah 3 ini.
-5. Uji bersama pengguna, lalu berhenti menunggu feedback.
+6. Uji bersama pengguna, lalu berhenti menunggu feedback.
 
 ### 4.5 Perilaku teknis umum
 
@@ -337,6 +349,10 @@ teks antarmuka, nama file, dan pesan commit:
   latihan. Pada situs SIRS yang sebenarnya, pengguna memakai kredensial
   miliknya sendiri. Jangan pernah menyarankan pengguna memasukkan
   kredensial asli ke dalam kode yang dibagikan atau di-commit.
+- File `kredensial.json` hasil GUI berisi teks biasa (tidak terenkripsi).
+  Simpan hanya di komputer pengguna, jangan pernah di-commit, dibagikan,
+  atau dikirim ke siapa pun. Jika berada dalam repo, pastikan masuk
+  `.gitignore`.
 - Seluruh angka pada file contoh adalah dummy fiktif.
 - Jeda antar input yang ditentukan juga berfungsi menjaga beban server,
   jangan dihilangkan.
