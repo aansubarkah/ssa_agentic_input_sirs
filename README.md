@@ -178,8 +178,9 @@ melanjutkan ke situs SIRS yang sebenarnya.
    Jangan meminta pengguna mengirim kredensial lewat percakapan. Mulai
    langkah 3, pengguna mengisi username dan password sendiri pada GUI.
 5. Browser harus headed (terlihat), bukan headless, pada semua langkah.
-6. Berhenti di akhir setiap langkah. Jangan lanjut ke langkah berikutnya
-   sebelum pengguna menyatakan sudah mencoba dan memberi feedback.
+6. Berhenti di akhir setiap langkah dengan memanggil `question` tool
+   sesuai bagian 4.6. Jangan lanjut ke langkah berikutnya sebelum
+   pengguna memilih opsi lanjut atau menulis jawaban lain.
 7. Komunikasi memakai bahasa Indonesia yang sederhana, tanpa jargon.
 8. Patuhi batas data per langkah: 2 data (2 sheet bulanan) pada langkah 1
    dan 2, dan Excel uji maksimal 20 data (20 sheet bulanan) pada langkah
@@ -231,35 +232,25 @@ script itu dan wajib dipertahankan:
 - Tanpa jeda waktu antar kotak input.
 - Bila periode sudah ada di web, otomatis memakai halaman ubah.
 - Setelah selesai: tampilkan pengingat memeriksa hasil di web versus
-  Excel, lalu berhenti menunggu feedback.
+  Excel, lalu panggil gerbang tombol akhir langkah 1 sesuai bagian 4.6.
 
 ### 4.3 Langkah 2: shortcut di desktop
 
-Setelah pengguna menyetujui lanjut, tanyakan:
-
-```
-Mau dibuatkan shortcut di desktop?
-```
-
-Jika ya:
+Setelah pengguna memilih opsi `Lanjut ke langkah 2` pada gerbang tombol
+akhir langkah 1:
 
 1. Jalankan `python buat_shortcut_langkah2.py`. Shortcut menunjuk ke
    `input_sirs_langkah2.py` yang perilakunya sama dengan langkah 1
    (maksimal 2 data, headed, tanpa jeda).
 2. Shortcut memakai ikon web sesuai bagian 6 dan dibuat sesuai sistem
    operasi pengguna, deteksi otomatis, jangan berasumsi Windows.
-3. Uji shortcut, lalu berhenti menunggu feedback.
+3. Uji shortcut, lalu panggil gerbang tombol akhir langkah 2 sesuai
+   bagian 4.6.
 
 ### 4.4 Langkah 3: GUI pemilih file Excel
 
-Setelah pengguna menyetujui lanjut, tanyakan:
-
-```
-Mau dibuatkan tampilan antarmuka (GUI) supaya Anda bisa memilih sendiri
-file Excel yang dipunya?
-```
-
-Jika ya:
+Setelah pengguna memilih opsi `Lanjut ke langkah 3` pada gerbang tombol
+akhir langkah 2:
 
 1. Jalankan `python gui_sirs_langkah3.py`. GUI memakai tkinter (bawaan
    Python) dengan: kolom username dan password (tampilan password
@@ -275,7 +266,8 @@ Jika ya:
 4. Kotak input diisi tanpa jeda waktu.
 5. Alihkan shortcut desktop agar menunjuk ke GUI:
    `python buat_shortcut_langkah2.py gui_sirs_langkah3.py`.
-6. Uji bersama pengguna, lalu berhenti menunggu feedback.
+6. Uji bersama pengguna, lalu panggil gerbang tombol akhir langkah 3
+   sesuai bagian 4.6.
 
 ### 4.5 Perilaku teknis umum
 
