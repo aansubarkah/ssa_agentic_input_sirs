@@ -69,8 +69,10 @@ Isi repo:
 | `buat_shortcut_langkah2.py` | Langkah 2: buat shortcut desktop dengan ikon web |
 | `gui_sirs_langkah3.py` | Langkah 3: GUI tkinter dengan kredensial tersimpan |
 | `scripts/perbaiki_excel.py` | Rapikan kolom M, N, dan TOTAL file contoh sesuai algoritma web |
-| `favicon.ico` | Ikon aplikasi untuk shortcut |
-| `assets/` | Ikon hasil konversi dari favicon untuk shortcut |
+| `favicon.ico` | Ikon aplikasi shortcut untuk Windows |
+| `favicon.svg` | Ikon vektor aplikasi untuk Linux |
+| `apple-touch-icon.png` | Ikon aplikasi untuk Linux dan macOS |
+| `assets/` | Ikon hasil konversi ICNS untuk macOS |
 | `kredensial.json` | Dibuat otomatis oleh GUI, masuk `.gitignore` |
 
 ## 2. Alur 3 langkah (ringkasan)
@@ -436,18 +438,19 @@ file contoh dilewati otomatis dengan pesan, sampai tahunnya tersedia.
 
 ## 6. Ikon aplikasi dan shortcut lintas sistem operasi
 
-Ikon aplikasi memakai `favicon.ico` yang sudah ada di root repo, tanpa
-mengunduh apa pun dari internet. Windows memakai berkas itu langsung;
-Linux dan macOS mengonversinya sekali ke folder `assets` lewat Pillow
-bila berkas hasilnya belum ada.
+Ikon aplikasi memakai berkas ikon yang sudah ada di root repo, tanpa
+mengunduh apa pun dari internet. Windows memakai `favicon.ico` langsung.
+Linux memakai `favicon.svg`, atau `apple-touch-icon.png` bila svg tidak
+ada. macOS mengonversi `apple-touch-icon.png` sekali menjadi `.icns` di
+folder `assets` lewat Pillow.
 
 Per sistem operasi:
 
 | Sistem operasi | Shortcut | Ikon |
 |---|---|---|
 | Windows | File `.lnk` dibuat lewat PowerShell (WScript.Shell), diletakkan di Desktop | `favicon.ico` langsung |
-| macOS | File `.command` di Desktop, dibuat bisa dieksekusi | `.icns` hasil konversi |
-| Linux | File `.desktop` di `~/Desktop` dan `~/.local/share/applications` | `.png` hasil konversi |
+| macOS | File `.command` di Desktop, dibuat bisa dieksekusi | `.icns` hasil konversi `apple-touch-icon.png` |
+| Linux | File `.desktop` di `~/Desktop` dan `~/.local/share/applications` | `favicon.svg` atau `apple-touch-icon.png` langsung |
 
 Deteksi sistem operasi otomatis dengan `platform.system()`. Untuk
 mengalihkan shortcut ke GUI setelah langkah 3:

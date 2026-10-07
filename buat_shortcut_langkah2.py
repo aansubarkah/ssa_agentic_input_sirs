@@ -5,9 +5,10 @@ Usage:
 
 Without an argument the shortcut points to input_sirs_langkah2.py (0.05
 second delay per input box). After step 3, run it again with the argument
-gui_sirs_langkah3.py to repoint the shortcut to the GUI. The icon comes
-from favicon.ico in the repository root: Windows uses it directly, while
-Linux and macOS get one time converted copies in the assets folder.
+gui_sirs_langkah3.py to repoint the shortcut to the GUI. Icons come from
+the repository root without any download: favicon.ico on Windows,
+favicon.svg or apple-touch-icon.png on Linux, and apple-touch-icon.png
+converted once to ICNS on macOS.
 """
 
 import os
@@ -28,26 +29,29 @@ def icon_ico_path(folder):
     return path
 
 
-def icon_png_path(folder):
-    """Convert favicon.ico to a PNG in assets once, for Linux."""
-    from PIL import Image
-    assets_dir = os.path.join(folder, "assets")
-    os.makedirs(assets_dir, exist_ok=True)
-    png_path = os.path.join(assets_dir, "ikon_aplikasi.png")
-    if not os.path.exists(png_path):
-        image = Image.open(icon_ico_path(folder)).convert("RGBA")
-        image.save(png_path)
-    return png_path
+def icon_linux_path(folder):
+    """Prefer the vector favicon.svg, then apple-touch-icon.png."""
+    for name in ("favicon.svg", "apple-touch-icon.png"):
+        path = os.path.join(folder, name)
+        if os.path.exists(path):
+            return path
+    print("File ikon tidak ditemukan: favicon.svg atau apple-touch-icon.png")
+    sys.exit(1)
 
 
 def icon_icns_path(folder):
-    """Convert the PNG to ICNS in assets once, for macOS."""
+    """Convert apple-touch-icon.png to ICNS in assets once, for macOS."""
     from PIL import Image
-    png_path = icon_png_path(folder)
-    icns_path = os.path.join(folder, "assets", "ikon_aplikasi.icns")
+    source = os.path.join(folder, "apple-touch-icon.png")
+    if not os.path.exists(source):
+        print("File ikon tidak ditemukan:", source)
+        sys.exit(1)
+    assets_dir = os.path.join(folder, "assets")
+    os.makedirs(assets_dir, exist_ok=True)
+    icns_path = os.path.join(assets_dir, "ikon_aplikasi.icns")
     if not os.path.exists(icns_path):
         try:
-            Image.open(png_path).save(icns_path)
+            Image.open(source).save(icns_path)
         except Exception:
             return None  # older Pillow may not support writing icns
     return icns_path
@@ -146,7 +150,7 @@ def main():
             folder, target_script, icon_icns_path(folder))
     elif system == "Linux":
         result = create_linux_shortcut(
-            folder, target_script, icon_png_path(folder))
+            folder, target_script, icon_linux_path(folder))
     else:
         print("Sistem operasi tidak dikenal:", system)
         sys.exit(1)
