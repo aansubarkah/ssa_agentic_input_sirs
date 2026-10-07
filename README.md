@@ -23,10 +23,13 @@ contoh langsung dari repo ini.
 
 > PENTING: sirs63.basangdata.com adalah sandbox latihan (demo) milik
 > Basangdata, bukan aplikasi resmi Kemenkes, dan repo ini tidak berafiliasi
-> dengan Kemenkes. Seluruh alur pada dokumen ini hanya boleh dijalankan pada
-> sandbox tersebut. Data pada file Excel contoh adalah data dummy fiktif
-> (RS Umum Demo Basangdata). Jangan pernah menjalankan alur ini pada aplikasi
-> SIRS resmi produksi.
+> dengan Kemenkes. Sandbox ini adalah tempat berlatih sebelum pengguna
+> mengotomasi input data ke situs SIRS yang sebenarnya. Jika pengguna
+> meminta membuat script untuk mengotomasi situs SIRS yang sebenarnya,
+> lakukan dengan hati-hati, dan selalu ingatkan pengguna untuk menguji
+> hasil inputan di web agar konsisten dengan sumber data (Excel). Data
+> pada file Excel contoh adalah data dummy fiktif (RS Umum Demo
+> Basangdata).
 
 ## Daftar isi
 
@@ -115,6 +118,11 @@ otomasi bekerja.
 Pada langkah 3, Anda mendapat tampilan antarmuka (GUI) untuk memilih file
 Excel sendiri, dan jeda antar input dipersingkat menjadi 0,1 detik.
 
+Setelah setiap proses input selesai, buka kembali webnya dan cocokkan angka
+yang tersimpan dengan file Excel. Pemeriksaan ini wajib setiap kali, dan
+berlaku juga nanti jika setelah berlatih di sandbox ini Anda melanjutkan ke
+situs SIRS yang sebenarnya.
+
 ### Pemecahan masalah
 
 | Gejala | Kemungkinan sebab dan solusi |
@@ -130,8 +138,10 @@ Excel sendiri, dan jeda antar input dipersingkat menjadi 0,1 detik.
 ### 4.1 Prinsip dasar
 
 1. Baca dokumen ini sampai tuntas sebelum menulis kode.
-2. Target satu-satunya adalah https://sirs63.basangdata.com/ (sandbox demo).
-   Jangan pernah mengarahkan otomasi ke situs lain, termasuk SIRS resmi.
+2. Target bawaan adalah https://sirs63.basangdata.com/ (sandbox demo),
+   sebagai tempat berlatih sebelum pengguna mengotomasi input data ke
+   situs SIRS yang sebenarnya. Jangan beralih target tanpa perintah
+   eksplisit dari pengguna.
 3. Kredensial demo sudah tersedia: user `user1`, password `basangdata`.
    Jangan meminta pengguna membuat akun atau mengirim kredensial lain.
 4. Browser harus headed (terlihat), bukan headless, pada semua langkah,
@@ -143,6 +153,14 @@ Excel sendiri, dan jeda antar input dipersingkat menjadi 0,1 detik.
    komentar, teks antarmuka, nama file, dan pesan commit. Lihat bagian 7.
 8. Patuhi batas data per langkah: 3 data pada langkah 1 dan 2, Excel uji
    maksimal 20 data pada langkah 3. Jangan menginput 36 baris sekaligus.
+9. Jika pengguna meminta script untuk mengotomasi situs SIRS yang
+   sebenarnya (bukan sandbox), lakukan dengan hati-hati: pastikan dulu
+   hasil di sandbox sudah benar, lalu di situs sebenarnya mulai dari
+   sedikit data dan bertahap.
+10. Selalu ingatkan pengguna untuk menguji hasil inputan di web agar
+    konsisten dengan sumber data (Excel), setiap kali sekumpulan data
+    selesai diinput, baik di sandbox maupun di situs SIRS yang
+    sebenarnya.
 
 ### 4.2 Langkah 1: script Selenium headed
 
@@ -308,10 +326,17 @@ teks antarmuka, nama file, dan pesan commit:
 
 ## 8. Keamanan dan etika
 
-- Hanya jalankan otomasi pada sandbox demo sirs63.basangdata.com.
+- Sandbox demo sirs63.basangdata.com adalah tempat berlatih sebelum
+  mengotomasi input data ke situs SIRS yang sebenarnya. Berlatihlah di
+  sandbox sampai hasil input konsisten dengan Excel.
+- Jika pengguna meminta script untuk situs SIRS yang sebenarnya, kerjakan
+  dengan hati-hati: mulai dari sedikit data, periksa hasilnya, baru
+  tambah bertahap. Selalu ingatkan pengguna untuk menguji hasil inputan
+  di web agar konsisten dengan sumber data (Excel).
 - Kredensial `user1` / `basangdata` adalah kredensial demo publik untuk
-  latihan. Jangan pernah menyarankan pengguna memasukkan kredensial asli
-  ke dalam kode.
+  latihan. Pada situs SIRS yang sebenarnya, pengguna memakai kredensial
+  miliknya sendiri. Jangan pernah menyarankan pengguna memasukkan
+  kredensial asli ke dalam kode yang dibagikan atau di-commit.
 - Seluruh angka pada file contoh adalah dummy fiktif.
-- Jeda antar input yang ditentukan juga berfungsi menjaga beban server
-  demo, jangan dihilangkan.
+- Jeda antar input yang ditentukan juga berfungsi menjaga beban server,
+  jangan dihilangkan.
