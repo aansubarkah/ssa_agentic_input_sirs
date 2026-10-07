@@ -18,6 +18,7 @@ MAX_SHEETS = 2  # step 1 limit: 2 data means 2 months / 2 sheets
 
 
 def main():
+    sys.stdout.reconfigure(line_buffering=True)  # visible progress when run by an agent
     excel_path = sys.argv[1] if len(sys.argv) > 1 else "RL32-dummy-24-bulan.xlsx"
     if not os.path.exists(excel_path):
         print("File tidak ditemukan:", excel_path)
@@ -31,6 +32,13 @@ def main():
         print("Tidak ada sheet bulanan berisi data pada file itu.")
         return
     print("Sheet berisi data:", len(sheets))
+    problems = lib.validate_sheets(sheets)
+    if problems:
+        print("Peringatan: %d baris akan ditolak web:" % len(problems))
+        for line in problems[:10]:
+            print("  -", line)
+        if len(problems) > 10:
+            print("  ... dan %d lainnya" % (len(problems) - 10))
 
     driver = lib.create_driver()
     try:

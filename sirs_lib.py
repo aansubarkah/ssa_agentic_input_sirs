@@ -7,8 +7,6 @@ gui_sirs_langkah3.py. No emoji, no em dash.
 import re
 import urllib.request
 
-from openpyxl import load_workbook
-
 BASE_URL = "https://sirs63.basangdata.com"
 DEFAULT_USER = "user1"
 DEFAULT_PASSWORD = "basangdata"
@@ -56,24 +54,31 @@ def download_sample_excel(destination):
 def read_excel(path):
     """Read every monthly sheet that contains data.
 
-    Returns a time sorted list of dicts: sheet, year, month, and rows
-    (list of jenis pelayanan entries with values). Rows whose values are
-    all zero are skipped because they do not need to be entered.
+    Uses pandas with the openpyxl engine so each sheet is parsed once
+    in a single pass (random access in openpyxl read_only mode is
+    quadratic and takes minutes on the sample file). Returns a time
+    sorted list of dicts: sheet, year, month, and rows (list of jenis
+    pelayanan entries with values). Rows whose values are all zero are
+    skipped because they do not need to be entered.
     """
-    workbook = load_workbook(path, data_only=True, read_only=True)
+    import pandas as pd
+
+    book = pd.read_excel(path, sheet_name=None, header=None,
+                         engine="openpyxl")
     result = []
-    for name in workbook.sheetnames:
+    for name, frame in book.items():
         match = re.fullmatch(r"(\d{4})-(\d{2})", str(name).strip())
         if not match:
             continue  # skip the Info sheet and other non monthly sheets
         year, month = int(match.group(1)), int(match.group(2))
-        sheet = workbook[name]
         data_rows = []
-        for row_index in range(DATA_ROW_START, DATA_ROW_END + 1):
+        for offset in range(DATA_ROW_START, DATA_ROW_END + 1):
+            row = frame.iloc[offset - 1]
             values = {}
             for key, column in FIELD_COLUMNS:
-                raw = sheet.cell(row=row_index, column=column).value
-                if raw is None or (isinstance(raw, str) and not raw.strip()):
+                raw = row.iloc[column - 1]
+                if (raw is None or pd.isna(raw)
+                        or (isinstance(raw, str) and not raw.strip())):
                     number = 0
                 else:
                     try:
@@ -81,11 +86,12 @@ def read_excel(path):
                     except (TypeError, ValueError):
                         number = 0
                 values[key] = max(number, 0)
+            label = row.iloc[1]
             if any(values.values()):
                 data_rows.append({
-                    "no": row_index - DATA_ROW_START + 1,
+                    "no": offset - DATA_ROW_START + 1,
                     "name": normalize_name(
-                        sheet.cell(row=row_index, column=2).value),
+                        None if pd.isna(label) else label),
                     "values": values,
                 })
         if data_rows:
@@ -97,6 +103,35 @@ def read_excel(path):
             })
     result.sort(key=lambda item: (item["year"], item["month"]))
     return result
+
+
+def validate_sheets(sheets):
+    """Check the web rules before a browser is opened.
+
+    The sandbox computes akhir and hari_rawat per row and refuses to
+    save when akhir is negative or hari_rawat is below lama_dirawat.
+    Returns a list of Indonesian problem messages, empty when fine.
+    """
+    problems = []
+    for sheet in sheets:
+        for row in sheet["rows"]:
+            v = row["values"]
+            akhir = (v["awal"] + v["masuk"] + v["pindahan"]
+                     - (v["keluar_hidup"] + v["mati_l_lt48"]
+                        + v["mati_l_ge48"] + v["mati_p_lt48"]
+                        + v["mati_p_ge48"] + v["dipindahkan"]))
+            hari = (v["vvip"] + v["vip"] + v["k1"] + v["k2"] + v["k3"]
+                    + v["khusus"])
+            label = "%s baris %d (%s)" % (sheet["sheet"], row["no"],
+                                          row["name"])
+            if akhir < 0:
+                problems.append(label + ": pasien keluar + dipindahkan "
+                                "melebihi pasien awal bulan + masuk + "
+                                "pindahan")
+            if hari < v["lama_dirawat"]:
+                problems.append(label + ": jumlah hari perawatan kurang "
+                                "dari jumlah lama dirawat")
+    return problems
 
 
 def create_driver():
