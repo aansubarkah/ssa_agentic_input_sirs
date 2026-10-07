@@ -16,3 +16,14 @@ aturan di README berlaku juga di sini.
    berikutnya, jangan tanya izin lagi di chat.
 4. Bila `question` tool tidak tersedia, ajukan versi chat dengan opsi
    bernomor yang sama.
+
+Set tombol per langkah (label, salinan dari README bagian 4.6):
+
+- Akhir langkah 1: `Lanjut ke langkah 2`, `Ulangi langkah 1`,
+  `Coba data lain`, `Berhenti dulu`, `Ide lain`.
+- Akhir langkah 2: `Lanjut ke langkah 3`, `Ulangi langkah 2`,
+  `Berhenti dulu`, `Ide lain`.
+- Akhir langkah 3: `Selesai`, `Ulangi langkah 3`, `Ide lain`.
+
+Bila script langkah gagal: jelaskan kegagalan di chat, lalu tetap
+panggil gerbang tombol; opsi ulangi tetap tersedia.

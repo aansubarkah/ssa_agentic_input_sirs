@@ -359,9 +359,13 @@ Makna tindakan:
 - `Ide lain` atau jawaban bebas apa pun: perlakukan sebagai instruksi
   baru dari pengguna; bila ambigu, tanyakan klarifikasi singkat.
 
+Bila script langkah gagal: jelaskan kegagalan di chat, lalu tetap panggil
+gerbang tombol dengan set tombol langkah itu; opsi ulangi tetap tersedia.
+
 Fallback: bila `question` tool tidak tersedia atau ditolak konfigurasi
-pengguna, ajukan pertanyaan yang sama di chat dengan opsi bernomor,
-misalnya `1. Lanjut ke langkah 2` sampai `5. Ide lain`, dan tunggu
+pengguna, ajukan pertanyaan yang sama di chat dengan opsi bernomor sesuai set
+tombol langkah itu, misalnya `1. Lanjut ke langkah 2` sampai
+`5. Ide lain`, dan tunggu
 jawaban bernomor dari pengguna.
 
 ## 5. Struktur file Excel RL 3.2
