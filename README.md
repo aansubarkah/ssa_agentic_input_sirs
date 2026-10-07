@@ -68,6 +68,7 @@ Isi repo:
 | `input_sirs_langkah2.py` | Target shortcut langkah 2, perilaku sama dengan langkah 1 |
 | `buat_shortcut_langkah2.py` | Langkah 2: buat shortcut desktop dengan ikon web |
 | `gui_sirs_langkah3.py` | Langkah 3: GUI tkinter dengan kredensial tersimpan |
+| `scripts/perbaiki_excel.py` | Rapikan kolom M, N, dan TOTAL file contoh sesuai algoritma web |
 | `assets/` | Ikon web (png, ico, icns) untuk shortcut |
 | `kredensial.json` | Dibuat otomatis oleh GUI, masuk `.gitignore` |
 
@@ -94,8 +95,8 @@ RL 3.2 beserta seluruh baris jenis pelayanannya.
 - Komputer dengan Windows, macOS, atau Linux.
 - Python 3 terinstal (repo memakai Python 3.14).
 - Google Chrome terinstal (Selenium mengunduh drivernya sendiri).
-- Pustaka Python: `selenium`, `openpyxl`, `pillow`. Pasang dengan
-  `pip install selenium openpyxl pillow` atau `uv sync` bila memakai uv.
+- Pustaka Python: `selenium`, `openpyxl`, `pillow`, `pandas`. Pasang dengan
+  `pip install selenium openpyxl pillow pandas` atau `uv sync` bila memakai uv.
 - Koneksi internet.
 
 ### Cara memakai
@@ -283,6 +284,14 @@ akhir langkah 2:
 - Tangani kegagalan dengan pesan bahasa Indonesia yang sederhana, sebut
   langkah yang gagal (buka situs, login, buka form, isi data, simpan).
 - Tulis log ringkas ke terminal atau area status GUI.
+- Jalankan script dengan `python -u` bila ingin keluaran tanpa buffering (script
+  sudah mengaktifkan buffering baris). Baca Excel memakan beberapa detik,
+  membuka Chrome dan mengisi form memakan beberapa menit. Jangan menghentikan
+  script yang sedang berjalan hanya karena belum ada keluaran baru.
+- Sebelum membuka browser, script memeriksa aturan web pada data: pasien akhir
+  bulan hasil hitung tidak boleh negatif, dan jumlah hari perawatan tidak
+  boleh kurang dari jumlah lama dirawat. Baris bermasalah dilaporkan sejak
+  awal tanpa menunggu kegagalan di web.
 - Jangan menyimpan kredensial apa pun selain kredensial demo sandbox,
   yang memang publik untuk latihan, dan `kredensial.json` milik pengguna.
 
@@ -414,6 +423,12 @@ Validasi nilai: bilangan bulat, tidak negatif. Nilai kosong diperlakukan
 sebagai 0. Cocokkan nama jenis pelayanan pada kolom B dengan label baris
 di aplikasi sebelum mengisi angka.
 
+Kolom M dan N pada file contoh berisi nilai statis yang dihitung dengan
+algoritma web: M = C+D+E-(F+G+H+I+J+K) dan N = O+P+Q+R+S+T. Aturan web
+terkait: M hasil perhitungan tidak boleh negatif, dan N tidak boleh kurang
+dari L. Bila pola data contoh berubah, jalankan
+`python scripts/perbaiki_excel.py` untuk merapikan M, N, dan baris TOTAL.
+
 Catatan tahun: script membaca pilihan Tahun di web secara dinamis. Saat
 ini web menyediakan 2025 dan 2026 saja, jadi sheet 2027 sampai 2030 pada
 file contoh dilewati otomatis dengan pesan, sampai tahunnya tersedia.
@@ -478,7 +493,7 @@ Repo sudah berisi implementasi referensi untuk ketiga langkah. Pasang
 dependensi dahulu:
 
 ```
-pip install selenium openpyxl pillow
+pip install selenium openpyxl pillow pandas
 ```
 
 Lalu jalankan sesuai langkah:
@@ -488,6 +503,7 @@ python input_sirs_langkah1.py                        # langkah 1
 python buat_shortcut_langkah2.py                     # langkah 2
 python gui_sirs_langkah3.py                          # langkah 3
 python buat_shortcut_langkah2.py gui_sirs_langkah3.py  # alihkan shortcut ke GUI
+python scripts/perbaiki_excel.py                     # rapikan kolom contoh sesuai algoritma web
 ```
 
 `input_sirs_langkah1.py` menerima argumen nama file Excel; tanpa argumen

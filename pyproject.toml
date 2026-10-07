@@ -5,6 +5,7 @@ description = "Playbook untuk AI agent: otomasi input RL 3.2 dari Excel ke sandb
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "pandas>=2.2",
     "selenium>=4.6",
     "openpyxl>=3.1",
     "pillow>=10.0",
