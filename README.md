@@ -286,6 +286,84 @@ akhir langkah 2:
 - Jangan menyimpan kredensial apa pun selain kredensial demo sandbox,
   yang memang publik untuk latihan, dan `kredensial.json` milik pengguna.
 
+### 4.6 Gerbang tombol antar langkah
+
+Di akhir setiap langkah, WAJIB memanggil `question` tool milik OpenCode,
+lalu tunggu jawaban pengguna sebelum melakukan apa pun. Satu gerbang:
+memilih opsi lanjut berarti izin menjalankan langkah berikutnya, jangan
+tanya izin lagi di chat. Setiap set tombol selalu memuat opsi
+`Ide lain`.
+
+Format pemanggilan `question` tool: satu pertanyaan dengan `question`
+(teks pertanyaan lengkap), `header` (ringkas, maksimal 30 karakter),
+dan `options` berisi pasangan `label` (1 sampai 5 kata) dan
+`description` (penjelas pilihan). Contoh untuk akhir langkah 1:
+
+```json
+{
+  "questions": [
+    {
+      "question": "Input 2 data selesai. Sudah dicek hasilnya di web dan cocok dengan Excel? Mau lanjut ke langkah 2, membuat shortcut di desktop?",
+      "header": "Langkah 1 selesai",
+      "options": [
+        { "label": "Lanjut ke langkah 2", "description": "Sudah saya cek di web, hasil cocok dengan Excel" },
+        { "label": "Ulangi langkah 1", "description": "Ada masalah pada hasil input" },
+        { "label": "Coba data lain", "description": "Ulangi input dengan sheet atau file Excel lain" },
+        { "label": "Berhenti dulu", "description": "Akhiri sesi ini tanpa lanjut" },
+        { "label": "Ide lain", "description": "Tulis instruksi lain di jawaban bebas" }
+      ]
+    }
+  ]
+}
+```
+
+Pertanyaan dan set tombol lengkap:
+
+Akhir langkah 1, header `Langkah 1 selesai`, pertanyaan seperti contoh
+di atas:
+
+| Label | Description |
+|---|---|
+| Lanjut ke langkah 2 | Sudah saya cek di web, hasil cocok dengan Excel |
+| Ulangi langkah 1 | Ada masalah pada hasil input |
+| Coba data lain | Ulangi input dengan sheet atau file Excel lain |
+| Berhenti dulu | Akhiri sesi ini tanpa lanjut |
+| Ide lain | Tulis instruksi lain di jawaban bebas |
+
+Akhir langkah 2, header `Langkah 2 selesai`, pertanyaan: `Shortcut di
+desktop sudah dibuat. Sudah dicoba dan berfungsi? Mau lanjut ke langkah
+3, membuat tampilan GUI?`:
+
+| Label | Description |
+|---|---|
+| Lanjut ke langkah 3 | Shortcut sudah dicoba dan berfungsi |
+| Ulangi langkah 2 | Ada masalah pada shortcut |
+| Berhenti dulu | Akhiri sesi ini tanpa lanjut |
+| Ide lain | Tulis instruksi lain di jawaban bebas |
+
+Akhir langkah 3, header `Langkah 3 selesai`, pertanyaan: `GUI sudah
+dibuat dan dicoba. Bagaimana hasilnya?`:
+
+| Label | Description |
+|---|---|
+| Selesai | Hasil sudah sesuai, sesi berakhir |
+| Ulangi langkah 3 | Ada masalah pada GUI |
+| Ide lain | Tulis instruksi lain di jawaban bebas |
+
+Makna tindakan:
+
+- `Ulangi langkah N`: jalankan ulang langkah N, tetap dalam batas data
+  langkah itu.
+- `Coba data lain`: tanyakan file atau sheet mana yang mau dipakai,
+  lalu ulangi input langkah 1 dengan data itu.
+- `Ide lain` atau jawaban bebas apa pun: perlakukan sebagai instruksi
+  baru dari pengguna; bila ambigu, tanyakan klarifikasi singkat.
+
+Fallback: bila `question` tool tidak tersedia atau ditolak konfigurasi
+pengguna, ajukan pertanyaan yang sama di chat dengan opsi bernomor,
+misalnya `1. Lanjut ke langkah 2` sampai `5. Ide lain`, dan tunggu
+jawaban bernomor dari pengguna.
+
 ## 5. Struktur file Excel RL 3.2
 
 File contoh `RL32-dummy-24-bulan.xlsx` berisi:
