@@ -11,3 +11,6 @@ wheels/
 
 # Credential file created by the GUI
 kredensial.json
+
+# Worktrees
+.worktrees/
