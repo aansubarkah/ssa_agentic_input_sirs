@@ -59,6 +59,8 @@ Isi repo:
 | File | Keterangan |
 |---|---|
 | `README.md` | Dokumen ini, playbook utama |
+| `AGENTS.md` | Instruksi gerbang tombol antar langkah untuk OpenCode |
+| `opencode.json` | Konfigurasi OpenCode: izinkan `question` tool |
 | `RL32-dummy-24-bulan.xlsx` | Data dummy RL 3.2, 72 sheet bulanan (2025-01 s.d. 2030-12; nama file tetap untuk kompatibilitas prompt) |
 | `RL32-latihan-20-data.xlsx` | Excel uji langkah 3, maksimal 20 data (20 sheet bulanan, 2025-01 s.d. 2026-08) |
 | `sirs_lib.py` | Pustaka bersama: baca Excel, login, input sheet |
@@ -71,19 +73,19 @@ Isi repo:
 
 ## 2. Alur 3 langkah (ringkasan)
 
-Agent bekerja bertahap dan selalu berhenti di akhir setiap langkah untuk
-menunggu pengguna mencoba hasilnya dan memberi feedback sebelum lanjut.
-Semua langkah memakai browser headed (terlihat) dan mengisi kotak input
-tanpa jeda waktu.
+Agent bekerja bertahap. Di akhir setiap langkah agent menampilkan
+gerbang tombol (bagian 4.6) dan menunggu pengguna memilih sebelum
+lanjut. Semua langkah memakai browser headed (terlihat) dan mengisi
+kotak input tanpa jeda waktu.
 
 Satu "data" berarti satu bulan pelaporan, yaitu satu sheet bulanan penuh
 RL 3.2 beserta seluruh baris jenis pelayanannya.
 
-| Langkah | Yang dikerjakan agent | Batas data | Berhenti setelah |
+| Langkah | Yang dikerjakan agent | Batas data | Tombol setelah langkah |
 |---|---|---|---|
-| 1 | Menjalankan `input_sirs_langkah1.py`: login lalu input data | Maksimal 2 data (2 sheet bulanan) | User mencoba dan memberi feedback |
-| 2 | Menanyakan ijin, lalu menjalankan `buat_shortcut_langkah2.py` | Shortcut menjalankan `input_sirs_langkah2.py`, batas sama (2 data) | User mencoba shortcut |
-| 3 | Menanyakan ijin, lalu menjalankan `gui_sirs_langkah3.py` | Excel uji maksimal 20 data (20 sheet), sheet dipilih user di GUI | User mencoba GUI |
+| 1 | Menjalankan `input_sirs_langkah1.py`: login lalu input data | Maksimal 2 data (2 sheet bulanan) | Lanjut, ulangi, coba data lain, berhenti, atau ide lain |
+| 2 | Menjalankan `buat_shortcut_langkah2.py` setelah opsi lanjut dipilih | Shortcut menjalankan `input_sirs_langkah2.py`, batas sama (2 data) | Lanjut, ulangi, berhenti, atau ide lain |
+| 3 | Menjalankan `gui_sirs_langkah3.py` setelah opsi lanjut dipilih | Excel uji maksimal 20 data (20 sheet), sheet dipilih user di GUI | Selesai, ulangi, atau ide lain |
 
 ## 3. Panduan untuk manusia
 
@@ -121,8 +123,8 @@ Cara pertama, lewat AI agent:
 Cara kedua, langsung menjalankan script yang sudah tersedia di repo ini.
 Lihat bagian 9 untuk daftar perintahnya.
 
-Di akhir setiap langkah, agent berhenti dan bertanya. Coba dulu hasilnya,
-baru lanjut.
+Di akhir setiap langkah, agent berhenti dan menampilkan tombol pilihan
+langkah berikutnya. Coba dulu hasilnya, baru pilih.
 
 ### Apa yang akan Anda lihat
 
@@ -136,6 +138,10 @@ Excel sendiri, memilih sheet bulanan, dan mengisi username serta password
 Anda sendiri. Username dan password itu disimpan otomatis sebagai file
 JSON di folder yang sama dengan script, sehingga pada pemakaian berikutnya
 Anda tidak perlu mengetiknya lagi.
+
+Bila Anda memakai OpenCode Desktop, tombol pilihan itu muncul sebagai
+panel pilihan di aplikasi, dan Anda juga bisa mengetik jawaban sendiri
+bila tidak ada pilihan yang cocok.
 
 ### Wajib: periksa hasil
 
