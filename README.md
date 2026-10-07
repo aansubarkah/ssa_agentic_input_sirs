@@ -40,7 +40,7 @@ langkah secara manual dan agent cukup menyesuaikan, bukan menulis dari nol.
 3. [Panduan untuk manusia](#3-panduan-untuk-manusia)
 4. [Panduan untuk AI agent](#4-panduan-untuk-ai-agent)
 5. [Struktur file Excel RL 3.2](#5-struktur-file-excel-rl-32)
-6. [Ikon web dan shortcut lintas sistem operasi](#6-ikon-web-dan-shortcut-lintas-sistem-operasi)
+6. [Ikon aplikasi dan shortcut lintas sistem operasi](#6-ikon-aplikasi-dan-shortcut-lintas-sistem-operasi)
 7. [Aturan penulisan](#7-aturan-penulisan)
 8. [Keamanan dan etika](#8-keamanan-dan-etika)
 9. [Script referensi di repo ini](#9-script-referensi-di-repo-ini)
@@ -69,7 +69,8 @@ Isi repo:
 | `buat_shortcut_langkah2.py` | Langkah 2: buat shortcut desktop dengan ikon web |
 | `gui_sirs_langkah3.py` | Langkah 3: GUI tkinter dengan kredensial tersimpan |
 | `scripts/perbaiki_excel.py` | Rapikan kolom M, N, dan TOTAL file contoh sesuai algoritma web |
-| `assets/` | Ikon web (png, ico, icns) untuk shortcut |
+| `favicon.ico` | Ikon aplikasi untuk shortcut |
+| `assets/` | Ikon hasil konversi dari favicon untuk shortcut |
 | `kredensial.json` | Dibuat otomatis oleh GUI, masuk `.gitignore` |
 
 ## 2. Alur 3 langkah (ringkasan)
@@ -433,20 +434,20 @@ Catatan tahun: script membaca pilihan Tahun di web secara dinamis. Saat
 ini web menyediakan 2025 dan 2026 saja, jadi sheet 2027 sampai 2030 pada
 file contoh dilewati otomatis dengan pesan, sampai tahunnya tersedia.
 
-## 6. Ikon web dan shortcut lintas sistem operasi
+## 6. Ikon aplikasi dan shortcut lintas sistem operasi
 
-Ikon aplikasi memakai ikon web (globe) dari koleksi ikon open source,
-bukan logo pihak lain. Script mengunduhnya saat pertama kali berjalan
-(OpenMoji via jsDelivr, dengan cadangan Twemoji, dan cadangan terakhir
-menggambar globe sendiri), lalu menyimpannya di folder `assets`.
+Ikon aplikasi memakai `favicon.ico` yang sudah ada di root repo, tanpa
+mengunduh apa pun dari internet. Windows memakai berkas itu langsung;
+Linux dan macOS mengonversinya sekali ke folder `assets` lewat Pillow
+bila berkas hasilnya belum ada.
 
 Per sistem operasi:
 
 | Sistem operasi | Shortcut | Ikon |
 |---|---|---|
-| Windows | File `.lnk` dibuat lewat PowerShell (WScript.Shell), diletakkan di Desktop | `.ico` |
-| macOS | File `.command` di Desktop, dibuat bisa dieksekusi | `.icns` |
-| Linux | File `.desktop` di `~/Desktop` dan `~/.local/share/applications` | `.png` |
+| Windows | File `.lnk` dibuat lewat PowerShell (WScript.Shell), diletakkan di Desktop | `favicon.ico` langsung |
+| macOS | File `.command` di Desktop, dibuat bisa dieksekusi | `.icns` hasil konversi |
+| Linux | File `.desktop` di `~/Desktop` dan `~/.local/share/applications` | `.png` hasil konversi |
 
 Deteksi sistem operasi otomatis dengan `platform.system()`. Untuk
 mengalihkan shortcut ke GUI setelah langkah 3:

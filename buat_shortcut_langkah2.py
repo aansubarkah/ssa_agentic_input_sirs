@@ -5,9 +5,9 @@ Usage:
 
 Without an argument the shortcut points to input_sirs_langkah2.py (0.05
 second delay per input box). After step 3, run it again with the argument
-gui_sirs_langkah3.py to repoint the shortcut to the GUI. The shortcut uses
-a web icon (globe) from an open source icon set, stored in the assets
-folder, and is created for the operating system of the user.
+gui_sirs_langkah3.py to repoint the shortcut to the GUI. The icon comes
+from favicon.ico in the repository root: Windows uses it directly, while
+Linux and macOS get one time converted copies in the assets folder.
 """
 
 import os
@@ -16,58 +16,41 @@ import subprocess
 import sys
 
 SHORTCUT_NAME = "Input SIRS RL32"
-ICON_URLS = [
-    "https://cdn.jsdelivr.net/gh/hfg-gmuend/openmoji@15.0.0/color/618x618/1F310.png",
-    "https://cdn.jsdelivr.net/gh/jdecked/twemoji@15.1.0/assets/72x72/1f310.png",
-    "https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f310.png",
-]
+ICON_FILE = "favicon.ico"
 
 
-def download_icon(png_path):
-    import urllib.request
-    for url in ICON_URLS:
-        try:
-            urllib.request.urlretrieve(url, png_path)
-            print("Ikon web terunduh dari:", url)
-            return True
-        except Exception:
-            continue
-    return False
+def icon_ico_path(folder):
+    """Return the favicon.ico path, exiting with a message when missing."""
+    path = os.path.join(folder, ICON_FILE)
+    if not os.path.exists(path):
+        print("File ikon tidak ditemukan:", path)
+        sys.exit(1)
+    return path
 
 
-def draw_local_globe(png_path):
-    """Fallback when the download fails: draw a simple globe."""
-    from PIL import Image, ImageDraw
-    image = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
-    draw = ImageDraw.Draw(image)
-    white = (255, 255, 255, 255)
-    draw.ellipse([12, 12, 244, 244], fill=(28, 100, 178, 255),
-                 outline=white, width=8)
-    draw.line([128, 12, 128, 244], fill=white, width=5)
-    draw.ellipse([46, 12, 210, 244], outline=white, width=5)
-    draw.ellipse([12, 46, 244, 210], outline=white, width=5)
-    image.save(png_path)
-    print("Unduhan gagal, ikon bola dibuat lokal.")
-
-
-def prepare_icon(assets_dir):
+def icon_png_path(folder):
+    """Convert favicon.ico to a PNG in assets once, for Linux."""
     from PIL import Image
+    assets_dir = os.path.join(folder, "assets")
     os.makedirs(assets_dir, exist_ok=True)
-    png_path = os.path.join(assets_dir, "ikon_web.png")
+    png_path = os.path.join(assets_dir, "ikon_aplikasi.png")
     if not os.path.exists(png_path):
-        if not download_icon(png_path):
-            draw_local_globe(png_path)
-    image = Image.open(png_path).convert("RGBA")
-    resized = image.resize((256, 256), Image.LANCZOS)
-    ico_path = os.path.join(assets_dir, "ikon_web.ico")
-    resized.save(ico_path, sizes=[(256, 256), (128, 128), (64, 64),
-                                  (48, 48), (32, 32), (16, 16)])
-    icns_path = os.path.join(assets_dir, "ikon_web.icns")
-    try:
-        resized.save(icns_path)
-    except Exception:
-        icns_path = None  # older Pillow may not support writing icns
-    return png_path, ico_path, icns_path
+        image = Image.open(icon_ico_path(folder)).convert("RGBA")
+        image.save(png_path)
+    return png_path
+
+
+def icon_icns_path(folder):
+    """Convert the PNG to ICNS in assets once, for macOS."""
+    from PIL import Image
+    png_path = icon_png_path(folder)
+    icns_path = os.path.join(folder, "assets", "ikon_aplikasi.icns")
+    if not os.path.exists(icns_path):
+        try:
+            Image.open(png_path).save(icns_path)
+        except Exception:
+            return None  # older Pillow may not support writing icns
+    return icns_path
 
 
 def escape_single_quotes(text):
@@ -154,15 +137,16 @@ def main():
         print("Script target tidak ditemukan:", target_script)
         sys.exit(1)
 
-    icon_png, icon_ico, icon_icns = prepare_icon(
-        os.path.join(folder, "assets"))
     system = platform.system()
     if system == "Windows":
-        result = create_windows_shortcut(folder, target_script, icon_ico)
+        result = create_windows_shortcut(
+            folder, target_script, icon_ico_path(folder))
     elif system == "Darwin":
-        result = create_macos_shortcut(folder, target_script, icon_icns)
+        result = create_macos_shortcut(
+            folder, target_script, icon_icns_path(folder))
     elif system == "Linux":
-        result = create_linux_shortcut(folder, target_script, icon_png)
+        result = create_linux_shortcut(
+            folder, target_script, icon_png_path(folder))
     else:
         print("Sistem operasi tidak dikenal:", system)
         sys.exit(1)
