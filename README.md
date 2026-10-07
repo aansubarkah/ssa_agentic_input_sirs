@@ -1,12 +1,12 @@
 # ssa_agentic_input_sirs
 
-Playbook untuk AI agent dalam membangun otomasi input data RL 3.2 dari file
-Excel ke sandbox demo SIRS 6.3 di https://sirs63.basangdata.com/, dengan alur
-3 langkah terpandu yang ramah bagi pengguna non-TI.
+Playbook dan script referensi untuk AI agent dalam membangun otomasi input
+data RL 3.2 dari file Excel ke sandbox demo SIRS 6.3 di
+https://sirs63.basangdata.com/, dengan alur 3 langkah terpandu yang ramah
+bagi pengguna non-TI.
 
-Repo ini adalah repo referensi, bukan aplikasi jadi. Isi utamanya adalah
-dokumen ini, yang akan dibaca oleh AI agent ketika pengguna memberi salah
-satu prompt generik berikut:
+Repo ini dibaca oleh AI agent ketika pengguna memberi salah satu prompt
+generik berikut:
 
 ```
 input data excel RL32-dummy-24-bulan.xlsx ke sirs63.basangdata.com.
@@ -19,7 +19,9 @@ lalu input 3 data ke https://sirs63.basangdata.com/
 ```
 
 Varian kedua tidak membutuhkan file Excel lokal: agent mengunduh file
-contoh langsung dari repo ini.
+contoh langsung dari repo ini. Repo ini juga sudah berisi script siap
+pakai untuk ketiga langkah, jadi pengguna tidak harus mencoba semua
+langkah secara manual dan agent cukup menyesuaikan, bukan menulis dari nol.
 
 > PENTING: sirs63.basangdata.com adalah sandbox latihan (demo) milik
 > Basangdata, bukan aplikasi resmi Kemenkes, dan repo ini tidak berafiliasi
@@ -41,6 +43,7 @@ contoh langsung dari repo ini.
 6. [Ikon web dan shortcut lintas sistem operasi](#6-ikon-web-dan-shortcut-lintas-sistem-operasi)
 7. [Aturan penulisan](#7-aturan-penulisan)
 8. [Keamanan dan etika](#8-keamanan-dan-etika)
+9. [Script referensi di repo ini](#9-script-referensi-di-repo-ini)
 
 ## 1. Tentang repo ini
 
@@ -57,21 +60,30 @@ Isi repo:
 |---|---|
 | `README.md` | Dokumen ini, playbook utama |
 | `RL32-dummy-24-bulan.xlsx` | Data dummy RL 3.2, 24 sheet bulanan (2024-09 s.d. 2026-08) |
-| `main.py`, `pyproject.toml` | Scaffold Python untuk script otomasi yang akan dibuat agent |
+| `RL32-latihan-20-data.xlsx` | Excel uji langkah 3, maksimal 20 data (20 sheet bulanan, 2025-01 s.d. 2026-08) |
+| `sirs_lib.py` | Pustaka bersama: baca Excel, login, input sheet |
+| `input_sirs_langkah1.py` | Langkah 1: input maksimal 2 sheet bulanan |
+| `input_sirs_langkah2.py` | Target shortcut langkah 2, perilaku sama dengan langkah 1 |
+| `buat_shortcut_langkah2.py` | Langkah 2: buat shortcut desktop dengan ikon web |
+| `gui_sirs_langkah3.py` | Langkah 3: GUI tkinter dengan kredensial tersimpan |
+| `assets/` | Ikon web (png, ico, icns) untuk shortcut |
+| `kredensial.json` | Dibuat otomatis oleh GUI, masuk `.gitignore` |
 
 ## 2. Alur 3 langkah (ringkasan)
 
 Agent bekerja bertahap dan selalu berhenti di akhir setiap langkah untuk
 menunggu pengguna mencoba hasilnya dan memberi feedback sebelum lanjut.
+Semua langkah memakai browser headed (terlihat) dan mengisi kotak input
+tanpa jeda waktu.
 
-| Langkah | Yang dikerjakan agent | Batas data | Jeda per input | Berhenti setelah |
-|---|---|---|---|---|
-| 1 | Script Python Selenium headed: login lalu input data | Maksimal 3 data | 0,5 detik | User mencoba script dan memberi feedback |
-| 2 | Membuat shortcut di desktop, fungsi sama dengan langkah 1 | Maksimal 3 data | 0,5 detik | User mencoba shortcut |
-| 3 | Membuat GUI (pilih file Excel, isi username dan password), lalu mengalihkan shortcut ke GUI | Excel uji maksimal 20 data | 0,1 detik (antar input, bukan per halaman) | User mencoba GUI |
+Satu "data" berarti satu bulan pelaporan, yaitu satu sheet bulanan penuh
+RL 3.2 beserta seluruh baris jenis pelayanannya.
 
-Satu "data" berarti satu baris jenis pelayanan RL 3.2 (misalnya Umum,
-Penyakit Dalam, Kesehatan Anak) pada satu sheet bulanan.
+| Langkah | Yang dikerjakan agent | Batas data | Berhenti setelah |
+|---|---|---|---|
+| 1 | Menjalankan `input_sirs_langkah1.py`: login lalu input data | Maksimal 2 data (2 sheet bulanan) | User mencoba dan memberi feedback |
+| 2 | Menanyakan ijin, lalu menjalankan `buat_shortcut_langkah2.py` | Shortcut menjalankan `input_sirs_langkah2.py`, batas sama (2 data) | User mencoba shortcut |
+| 3 | Menanyakan ijin, lalu menjalankan `gui_sirs_langkah3.py` | Excel uji maksimal 20 data (20 sheet), sheet dipilih user di GUI | User mencoba GUI |
 
 ## 3. Panduan untuk manusia
 
@@ -79,11 +91,14 @@ Penyakit Dalam, Kesehatan Anak) pada satu sheet bulanan.
 
 - Komputer dengan Windows, macOS, atau Linux.
 - Python 3 terinstal (repo memakai Python 3.14).
-- Google Chrome terinstal (Selenium akan mengunduh drivernya sendiri).
+- Google Chrome terinstal (Selenium mengunduh drivernya sendiri).
+- Pustaka Python: `selenium`, `openpyxl`, `pillow`. Pasang dengan
+  `pip install selenium openpyxl pillow` atau `uv sync` bila memakai uv.
 - Koneksi internet.
-- File Excel RL 3.2 yang ingin diinput.
 
 ### Cara memakai
+
+Cara pertama, lewat AI agent:
 
 1. Buka AI agent atau coding assistant pilihan Anda.
 2. Tempel salah satu prompt generik berikut.
@@ -103,28 +118,31 @@ Penyakit Dalam, Kesehatan Anak) pada satu sheet bulanan.
    lalu input 3 data ke https://sirs63.basangdata.com/
    ```
 
-3. Agent akan membaca repo ini, lalu membuat dan menjalankan script
-   otomasi langkah 1.
-4. Di akhir setiap langkah, agent berhenti dan bertanya. Coba dulu hasilnya,
-   baru lanjut.
+Cara kedua, langsung menjalankan script yang sudah tersedia di repo ini.
+Lihat bagian 9 untuk daftar perintahnya.
+
+Di akhir setiap langkah, agent berhenti dan bertanya. Coba dulu hasilnya,
+baru lanjut.
 
 ### Apa yang akan Anda lihat
 
-Pada langkah 1 dan 2, jendela Chrome terbuka (headed, terlihat), agent
-mengisi username dan password, lalu mengisi form RL 3.2 maksimal 3 baris.
-Setiap input diberi jeda 0,5 detik supaya Anda bisa melihat bagaimana
-otomasi bekerja.
+Jendela Chrome terbuka (headed, terlihat), script mengisi username dan
+password, lalu mengisi form RL 3.2 untuk maksimal 2 bulan pada langkah 1
+dan 2. Kotak input diisi tanpa jeda, jadi prosesnya cepat; browser tetap
+terbuka sampai proses selesai agar Anda bisa melihat apa yang dilakukan.
 
 Pada langkah 3, Anda mendapat tampilan antarmuka (GUI) untuk memilih file
-Excel sendiri dan mengisi username serta password Anda sendiri, dan jeda
-antar input dipersingkat menjadi 0,1 detik. Username dan password itu
-disimpan otomatis sebagai file JSON di folder yang sama dengan script,
-sehingga pada pemakaian berikutnya Anda tidak perlu mengetiknya lagi.
+Excel sendiri, memilih sheet bulanan, dan mengisi username serta password
+Anda sendiri. Username dan password itu disimpan otomatis sebagai file
+JSON di folder yang sama dengan script, sehingga pada pemakaian berikutnya
+Anda tidak perlu mengetiknya lagi.
 
-Setelah setiap proses input selesai, buka kembali webnya dan cocokkan angka
-yang tersimpan dengan file Excel. Pemeriksaan ini wajib setiap kali, dan
-berlaku juga nanti jika setelah berlatih di sandbox ini Anda melanjutkan ke
-situs SIRS yang sebenarnya.
+### Wajib: periksa hasil
+
+Setelah setiap proses input selesai, buka kembali webnya dan cocokkan
+angka yang tersimpan dengan file Excel. Pemeriksaan ini wajib setiap
+kali, dan berlaku juga nanti jika setelah berlatih di sandbox ini Anda
+melanjutkan ke situs SIRS yang sebenarnya.
 
 ### Pemecahan masalah
 
@@ -133,6 +151,8 @@ situs SIRS yang sebenarnya.
 | Chrome tidak terbuka | Chrome belum terinstal, atau Selenium gagal mengunduh driver. Cek koneksi internet lalu jalankan ulang. |
 | Login gagal | Pastikan memakai kredensial demo sandbox: user `user1`, password `basangdata`. |
 | Data tidak masuk | Sheet bulan belum tersedia di sandbox, atau nilai bukan angka. Lihat bagian 5. |
+| Periode sudah ada di web | Bukan masalah: script otomatis memakai halaman ubah, bukan tambah. |
+| Sheet dilewati dengan pesan tahun tidak tersedia | Web saat ini hanya menyediakan tahun 2025 dan 2026. Sheet 2024 dilewati otomatis. |
 | Excel tidak terunduh dari repo | Pastikan URL raw dan nama branch benar, lihat bagian 4.2. |
 | Shortcut tidak jalan | Lihat bagian 6, pastikan target shortcut sesuai sistem operasi Anda. |
 
@@ -140,23 +160,24 @@ situs SIRS yang sebenarnya.
 
 ### 4.1 Prinsip dasar
 
-1. Baca dokumen ini sampai tuntas sebelum menulis kode.
-2. Target bawaan adalah https://sirs63.basangdata.com/ (sandbox demo),
+1. Baca dokumen ini sampai tuntas sebelum menulis atau menjalankan kode.
+2. Gunakan script referensi yang sudah ada di repo ini sebagai titik
+   awal. Sesuaikan bila perlu, jangan menulis dari nol bila scriptnya
+   sudah tersedia.
+3. Target bawaan adalah https://sirs63.basangdata.com/ (sandbox demo),
    sebagai tempat berlatih sebelum pengguna mengotomasi input data ke
    situs SIRS yang sebenarnya. Jangan beralih target tanpa perintah
    eksplisit dari pengguna.
-3. Kredensial demo sudah tersedia: user `user1`, password `basangdata`.
+4. Kredensial demo sudah tersedia: user `user1`, password `basangdata`.
    Jangan meminta pengguna mengirim kredensial lewat percakapan. Mulai
    langkah 3, pengguna mengisi username dan password sendiri pada GUI.
-4. Browser harus headed (terlihat), bukan headless, pada semua langkah,
-   karena tujuan demo adalah pengguna melihat otomasi bekerja.
-5. Berhenti di akhir setiap langkah. Jangan lanjut ke langkah berikutnya
+5. Browser harus headed (terlihat), bukan headless, pada semua langkah.
+6. Berhenti di akhir setiap langkah. Jangan lanjut ke langkah berikutnya
    sebelum pengguna menyatakan sudah mencoba dan memberi feedback.
-6. Komunikasi memakai bahasa Indonesia yang sederhana, tanpa jargon.
-7. Tanpa emoji dan tanpa em dash di semua tempat: percakapan, kode,
-   komentar, teks antarmuka, nama file, dan pesan commit. Lihat bagian 7.
-8. Patuhi batas data per langkah: 3 data pada langkah 1 dan 2, Excel uji
-   maksimal 20 data pada langkah 3. Jangan menginput 36 baris sekaligus.
+7. Komunikasi memakai bahasa Indonesia yang sederhana, tanpa jargon.
+8. Patuhi batas data per langkah: 2 data (2 sheet bulanan) pada langkah 1
+   dan 2, dan Excel uji maksimal 20 data (20 sheet bulanan) pada langkah
+   3. Kotak input diisi tanpa jeda waktu.
 9. Jika pengguna meminta script untuk mengotomasi situs SIRS yang
    sebenarnya (bukan sandbox), lakukan dengan hati-hati: pastikan dulu
    hasil di sandbox sudah benar, lalu di situs sebenarnya mulai dari
@@ -165,6 +186,8 @@ situs SIRS yang sebenarnya.
     konsisten dengan sumber data (Excel), setiap kali sekumpulan data
     selesai diinput, baik di sandbox maupun di situs SIRS yang
     sebenarnya.
+11. Tanpa emoji dan tanpa em dash di semua tempat: percakapan, kode,
+    komentar, teks antarmuka, nama file, dan pesan commit. Lihat bagian 7.
 
 ### 4.2 Langkah 1: script Selenium headed
 
@@ -186,28 +209,23 @@ https://raw.githubusercontent.com/aansubarkah/ssa_agentic_input_sirs/master/RL32
 
 (Sesuaikan nama branch bila berbeda.) Simpan file di folder kerja, lalu
 lanjut seperti biasa. Kalau prompt tidak menyebut jumlah data, tetap pakai
-batas maksimal 3 data sesuai langkah 1.
+batas maksimal 2 data sesuai langkah 1.
 
-Hasil yang harus dibuat: satu script Python, misal `input_sirs_langkah1.py`.
+Script referensi: `input_sirs_langkah1.py`. Perilaku yang sudah benar di
+script itu dan wajib dipertahankan:
 
-Spesifikasi teknis:
-
-- Bahasa: Python. Pustaka: `selenium` (versi 4.6 atau lebih baru, Selenium
-  Manager mengunduh ChromeDriver otomatis, tidak perlu webdriver-manager)
-  dan `openpyxl` untuk membaca Excel.
-- Browser: Google Chrome, mode headed.
 - Login: buka https://sirs63.basangdata.com/, isi kolom `username` dan
-  `password` (form memakai id `username` dan `password`, serta memuat token
-  CSRF pada hidden input; isi form seperti biasa lewat Selenium, jangan
-  mem-bypass form).
-- Pemilihan data: pakai sheet bulanan pertama yang memiliki data, dan
-  ambil 3 baris jenis pelayanan pertama yang nilainya tidak kosong.
-- Penginputan: isi form RL 3.2 sesuai pemetaan kolom di bagian 5. Lewati
-  kolom formula M dan N (dihitung otomatis oleh aplikasi) dan baris TOTAL.
-- Jeda: `time.sleep(0.5)` setiap selesai satu input (satu baris form),
-  supaya pengguna melihat prosesnya.
-- Setelah script selesai dibuat dan dijalankan, berhenti dan minta
-  pengguna mencoba serta memberi feedback.
+  `password` (form memuat token CSRF pada hidden input; isi form seperti
+  biasa lewat Selenium, jangan mem-bypass form).
+- Pemilihan data: maksimal 2 sheet bulanan pertama yang berisi data dan
+  tahunnya tersedia di pilihan Tahun pada web.
+- Penginputan: sesuai pemetaan kolom di bagian 5. Kolom formula M dan N
+  tidak diinput (dihitung otomatis oleh web), baris TOTAL dan baris yang
+  seluruh nilainya 0 dilewati.
+- Tanpa jeda waktu antar kotak input.
+- Bila periode sudah ada di web, otomatis memakai halaman ubah.
+- Setelah selesai: tampilkan pengingat memeriksa hasil di web versus
+  Excel, lalu berhenti menunggu feedback.
 
 ### 4.3 Langkah 2: shortcut di desktop
 
@@ -219,12 +237,12 @@ Mau dibuatkan shortcut di desktop?
 
 Jika ya:
 
-1. Buat shortcut yang menjalankan script langkah 1, perilakunya sama
-   (login, input maksimal 3 data, jeda 0,5 detik).
-2. Gunakan ikon web sesuai bagian 6.
-3. Buat sesuai sistem operasi pengguna (Windows, macOS, atau Linux),
-   deteksi dengan `platform.system()`, jangan berasumsi Windows.
-4. Uji shortcut, lalu berhenti menunggu feedback.
+1. Jalankan `python buat_shortcut_langkah2.py`. Shortcut menunjuk ke
+   `input_sirs_langkah2.py` yang perilakunya sama dengan langkah 1
+   (maksimal 2 data, headed, tanpa jeda).
+2. Shortcut memakai ikon web sesuai bagian 6 dan dibuat sesuai sistem
+   operasi pengguna, deteksi otomatis, jangan berasumsi Windows.
+3. Uji shortcut, lalu berhenti menunggu feedback.
 
 ### 4.4 Langkah 3: GUI pemilih file Excel
 
@@ -237,35 +255,38 @@ file Excel yang dipunya?
 
 Jika ya:
 
-1. Buat GUI, disarankan `tkinter` (bawaan Python): kolom username dan
-   password (tampilan password disamakan), tombol pilih file Excel,
-   pilihan sheet bulanan, tombol mulai, indikator progres, dan area pesan
-   status.
+1. Jalankan `python gui_sirs_langkah3.py`. GUI memakai tkinter (bawaan
+   Python) dengan: kolom username dan password (tampilan password
+   disamakan), tombol pilih file Excel, daftar sheet bulanan, tombol
+   mulai, indikator progres, dan area pesan status.
 2. Kredensial pada GUI: isi otomatis dengan kredensial demo sandbox
    (`user1` / `basangdata`) sebagai nilai bawaan, dan pengguna dapat
-   menggantinya. Simpan username dan password dalam file JSON, misal
-   `kredensial.json`, di folder yang sama dengan script, agar bisa
-   digunakan di masa depan oleh script itu. Tulis file JSON saat
-   pengguna menekan tombol mulai, dan baca kembali untuk mengisi kolom
-   saat GUI dibuka.
-3. Buat file Excel uji berisi maksimal 20 data (20 baris jenis pelayanan)
-   yang diambil dari data dummy, misal `RL32-latihan-20-data.xlsx`.
-4. Jeda antar input hanya `time.sleep(0.1)`, dihitung antar input (antar
-   baris), bukan per halaman.
-5. Alihkan shortcut desktop yang dibuat pada langkah 2 agar menunjuk ke
-   script GUI langkah 3 ini.
+   menggantinya. Username dan password disimpan dalam `kredensial.json`
+   di folder yang sama dengan script, ditulis saat tombol mulai ditekan
+   dan dibaca kembali saat GUI dibuka.
+3. Excel uji yang tersedia: `RL32-latihan-20-data.xlsx`, berisi maksimal
+   20 data (20 sheet bulanan, 2025-01 s.d. 2026-08).
+4. Kotak input diisi tanpa jeda waktu.
+5. Alihkan shortcut desktop agar menunjuk ke GUI:
+   `python buat_shortcut_langkah2.py gui_sirs_langkah3.py`.
 6. Uji bersama pengguna, lalu berhenti menunggu feedback.
 
 ### 4.5 Perilaku teknis umum
 
-- Untuk locator elemen, utamakan id atau name yang stabil (misalnya
-  `username`, `password`), lalu CSS class. Inspeksi halaman saat runtime;
-  jangan menyalin selector rapuh tanpa fallback.
+- Untuk locator elemen, utamakan id atau name yang stabil: `#username`,
+  `#password`, `#bulan`, `#tahun`, kotak centang baris berkelas
+  `cek-baris`, dan field angka bernama `v[no_baris][kunci]`.
+- Inspeksi halaman saat runtime bila selector berubah; jangan menyalin
+  selector rapuh tanpa fallback.
+- Sebelum mengklik elemen (kotak centang, tombol Simpan), gulir elemen
+  ke tengah layar agar tidak tertutup elemen lain.
+- Setelah menekan Simpan, tunggu sampai halaman meninggalkan form atau
+  muncul pesan, lalu baca pesan web untuk memastikan tersimpan.
 - Tangani kegagalan dengan pesan bahasa Indonesia yang sederhana, sebut
   langkah yang gagal (buka situs, login, buka form, isi data, simpan).
 - Tulis log ringkas ke terminal atau area status GUI.
 - Jangan menyimpan kredensial apa pun selain kredensial demo sandbox,
-   yang memang publik untuk latihan.
+  yang memang publik untuk latihan, dan `kredensial.json` milik pengguna.
 
 ## 5. Struktur file Excel RL 3.2
 
@@ -293,8 +314,8 @@ Pemetaan kolom:
 | J | Pasien Perempuan Keluar Mati kurang dari 48 jam | Diinput |
 | K | Pasien Perempuan Keluar Mati 48 jam atau lebih | Diinput |
 | L | Jumlah Lama Dirawat | Diinput |
-| M | Pasien Akhir Bulan | Tidak diinput, formula otomatis |
-| N | Jumlah Hari Perawatan | Tidak diinput, formula otomatis |
+| M | Pasien Akhir Bulan | Tidak diinput, otomatis di web |
+| N | Jumlah Hari Perawatan | Tidak diinput, otomatis di web |
 | O | Hari Perawatan Kelas VVIP | Diinput |
 | P | Hari Perawatan Kelas VIP | Diinput |
 | Q | Hari Perawatan Kelas I | Diinput |
@@ -303,27 +324,40 @@ Pemetaan kolom:
 | T | Hari Perawatan Kelas Khusus | Diinput |
 | U | Jumlah Alokasi Tempat Tidur Awal Bulan | Diinput |
 
+Pemetaan kolom ke nama field input di web (`v[no_baris][kunci]`):
+C `awal`, D `masuk`, E `pindahan`, F `dipindahkan`, G `keluar_hidup`,
+H `mati_l_lt48`, I `mati_l_ge48`, J `mati_p_lt48`, K `mati_p_ge48`,
+L `lama_dirawat`, O `vvip`, P `vip`, Q `k1`, R `k2`, S `k3`,
+T `khusus`, U `tt`.
+
 Validasi nilai: bilangan bulat, tidak negatif. Nilai kosong diperlakukan
 sebagai 0. Cocokkan nama jenis pelayanan pada kolom B dengan label baris
 di aplikasi sebelum mengisi angka.
 
+Catatan tahun: web saat ini hanya menyediakan pilihan Tahun 2025 dan 2026,
+jadi sheet 2024 pada file contoh dilewati otomatis dengan pesan.
+
 ## 6. Ikon web dan shortcut lintas sistem operasi
 
-Ikon aplikasi memakai ikon web (ikon globe yang mewakili web), bukan logo
-pihak lain. Ambil dari koleksi ikon open source lewat CDN saat proses
-pembuatan berjalan, lalu simpan sebagai aset lokal, misalnya `assets/`.
+Ikon aplikasi memakai ikon web (globe) dari koleksi ikon open source,
+bukan logo pihak lain. Script mengunduhnya saat pertama kali berjalan
+(OpenMoji via jsDelivr, dengan cadangan Twemoji, dan cadangan terakhir
+menggambar globe sendiri), lalu menyimpannya di folder `assets`.
 
 Per sistem operasi:
 
 | Sistem operasi | Shortcut | Ikon |
 |---|---|---|
-| Windows | File `.lnk` dibuat lewat PowerShell (WScript.Shell), diletakkan di Desktop | `.ico`, konversi dengan Pillow |
-| macOS | File `.command`, atau aplikasi via `osascript` | `.icns` |
+| Windows | File `.lnk` dibuat lewat PowerShell (WScript.Shell), diletakkan di Desktop | `.ico` |
+| macOS | File `.command` di Desktop, dibuat bisa dieksekusi | `.icns` |
 | Linux | File `.desktop` di `~/Desktop` dan `~/.local/share/applications` | `.png` |
 
-Deteksi sistem operasi dengan `platform.system()`: `Windows`, `Darwin`,
-atau `Linux`. Buat hanya untuk sistem yang dipakai pengguna. Setelah
-langkah 3 selesai, target shortcut dialihkan ke script GUI.
+Deteksi sistem operasi otomatis dengan `platform.system()`. Untuk
+mengalihkan shortcut ke GUI setelah langkah 3:
+
+```
+python buat_shortcut_langkah2.py gui_sirs_langkah3.py
+```
 
 ## 7. Aturan penulisan
 
@@ -335,6 +369,9 @@ teks antarmuka, nama file, dan pesan commit:
    titik, tanda kurung, atau tanda hubung biasa `-`.
 3. Utamakan tanda baca ASCII.
 4. Nama file tanpa spasi, gunakan tanda hubung atau garis bawah.
+5. Penamaan variabel dan komentar pada kode memakai bahasa Inggris.
+6. Pesan yang tampil ke pengguna (print, log, label GUI) memakai bahasa
+   Indonesia yang sederhana.
 
 ## 8. Keamanan dan etika
 
@@ -351,8 +388,39 @@ teks antarmuka, nama file, dan pesan commit:
   kredensial asli ke dalam kode yang dibagikan atau di-commit.
 - File `kredensial.json` hasil GUI berisi teks biasa (tidak terenkripsi).
   Simpan hanya di komputer pengguna, jangan pernah di-commit, dibagikan,
-  atau dikirim ke siapa pun. Jika berada dalam repo, pastikan masuk
-  `.gitignore`.
+  atau dikirim ke siapa pun. File ini sudah masuk `.gitignore`.
 - Seluruh angka pada file contoh adalah dummy fiktif.
-- Jeda antar input yang ditentukan juga berfungsi menjaga beban server,
-  jangan dihilangkan.
+
+## 9. Script referensi di repo ini
+
+Repo sudah berisi implementasi referensi untuk ketiga langkah. Pasang
+dependensi dahulu:
+
+```
+pip install selenium openpyxl pillow
+```
+
+Lalu jalankan sesuai langkah:
+
+```
+python input_sirs_langkah1.py                        # langkah 1
+python buat_shortcut_langkah2.py                     # langkah 2
+python gui_sirs_langkah3.py                          # langkah 3
+python buat_shortcut_langkah2.py gui_sirs_langkah3.py  # alihkan shortcut ke GUI
+```
+
+`input_sirs_langkah1.py` menerima argumen nama file Excel; tanpa argumen
+memakai `RL32-dummy-24-bulan.xlsx`, dan bila file itu tidak ada, file
+contoh diunduh otomatis dari repo.
+
+Perilaku penting yang sudah ditangani script:
+
+- Login form mengandung token CSRF; Selenium mengisi form biasa.
+- Bila periode sudah ada di web, otomatis beralih ke halaman ubah.
+- Web saat ini hanya menyediakan tahun 2025 dan 2026; sheet tahun lain
+  dilewati dengan pesan.
+- Baris yang seluruh nilainya 0 tidak dicentang dan tidak diinput.
+- Kolom M dan N otomatis dihitung web, tidak diinput.
+- Kotak input diisi tanpa jeda waktu; browser tetap headed.
+- Setelah selesai, script mengingatkan memeriksa hasil di web versus
+  Excel.

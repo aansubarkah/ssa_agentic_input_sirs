@@ -4,4 +4,8 @@ version = "0.1.0"
 description = "Playbook untuk AI agent: otomasi input RL 3.2 dari Excel ke sandbox demo SIRS 6.3"
 readme = "README.md"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "selenium>=4.6",
+    "openpyxl>=3.1",
+    "pillow>=10.0",
+]
