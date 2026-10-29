@@ -40,6 +40,10 @@ FIELD_COLUMNS = [
 DATA_ROW_START = 5   # first Excel row, jenis pelayanan No 1
 DATA_ROW_END = 40    # last Excel row, No 36; the TOTAL row is skipped
 
+# Message container after saving. The web now shows a Toastify toast
+# (role=alert); older pages used the .alert class, kept as a fallback.
+WEB_MESSAGE_SELECTOR = ".alert, .Toastify__toast, [role=alert]"
+
 
 def normalize_name(text):
     """Normalize a jenis pelayanan name so Excel and web labels match."""
@@ -188,8 +192,10 @@ def select_value(driver, select_id, value):
 
 def read_alert(driver):
     from selenium.webdriver.common.by import By
-    elements = driver.find_elements(By.CSS_SELECTOR, ".alert")
-    return elements[0].text.strip() if elements else ""
+    elements = driver.find_elements(By.CSS_SELECTOR, WEB_MESSAGE_SELECTOR)
+    text = " ".join(
+        element.text.strip() for element in elements if element.text.strip())
+    return text.replace("\u00d7", "").strip()  # drop toast close button
 
 
 def scroll_and_click(driver, element):
@@ -237,6 +243,9 @@ def input_sheet(driver, year, month, data_rows, log=print):
         for key, _column in FIELD_COLUMNS:
             field = driver.find_element(
                 By.NAME, "v[%d][%s]" % (index, key))
+            # The new UI keeps number boxes disabled until the row is
+            # checked, so wait for enabled before typing.
+            WebDriverWait(driver, 10).until(lambda d: field.is_enabled())
             field.clear()
             field.send_keys(str(row["values"][key]))
 
@@ -249,7 +258,8 @@ def input_sheet(driver, year, month, data_rows, log=print):
         left_form = ("/rl32/tambah" not in url) and ("/rl32/ubah/" not in url)
         on_form = bool(d.find_elements(
             By.XPATH, "//main//button[normalize-space()='Simpan']"))
-        has_alert = bool(d.find_elements(By.CSS_SELECTOR, ".alert"))
+        has_alert = bool(d.find_elements(
+            By.CSS_SELECTOR, WEB_MESSAGE_SELECTOR))
         return (left_form and not on_form) or (on_form and has_alert)
 
     try:
@@ -258,7 +268,8 @@ def input_sheet(driver, year, month, data_rows, log=print):
         pass  # read whatever state is available below
     message = " ".join(
         element.text.strip()
-        for element in driver.find_elements(By.CSS_SELECTOR, ".alert")
+        for element in driver.find_elements(
+            By.CSS_SELECTOR, WEB_MESSAGE_SELECTOR)
     ).strip()
     saved = ("berhasil" in message.lower()) or (not message and settled(driver))
     if saved:
