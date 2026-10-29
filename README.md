@@ -162,7 +162,7 @@ melanjutkan ke situs SIRS yang sebenarnya.
 | Login gagal | Pastikan memakai kredensial demo sandbox: user `user1`, password `basangdata`. |
 | Data tidak masuk | Sheet bulan belum tersedia di sandbox, atau nilai bukan angka. Lihat bagian 5. |
 | Periode sudah ada di web | Bukan masalah: script otomatis memakai halaman ubah, bukan tambah. |
-| Sheet dilewati dengan pesan tahun tidak tersedia | Web saat ini menyediakan pilihan Tahun 2025 dan 2026 saja. Sheet 2027 s.d. 2030 dilewati otomatis sampai tahunnya tersedia di web. |
+| Sheet dilewati dengan pesan tahun tidak tersedia | Pilihan Tahun dibaca dinamis dari web. Saat ini web menyediakan 2025 sampai 2030 dan semuanya bisa disimpan, jadi tidak ada sheet yang dilewati lagi. |
 | Excel tidak terunduh dari repo | Pastikan URL raw dan nama branch benar, lihat bagian 4.2. |
 | Shortcut tidak jalan | Lihat bagian 6, pastikan target shortcut sesuai sistem operasi Anda. |
 
@@ -433,8 +433,9 @@ dari L. Bila pola data contoh berubah, jalankan
 `python scripts/perbaiki_excel.py` untuk merapikan M, N, dan baris TOTAL.
 
 Catatan tahun: script membaca pilihan Tahun di web secara dinamis. Saat
-ini web menyediakan 2025 dan 2026 saja, jadi sheet 2027 sampai 2030 pada
-file contoh dilewati otomatis dengan pesan, sampai tahunnya tersedia.
+ini web menyediakan 2025 sampai 2030 dan semuanya bisa disimpan, jadi
+seluruh sheet bulanan pada file contoh bisa diinput. Bila nanti daftar
+tahun di web berubah, script menyesuaikan otomatis.
 
 ## 6. Ikon aplikasi dan shortcut lintas sistem operasi
 
@@ -518,8 +519,8 @@ Perilaku penting yang sudah ditangani script:
 
 - Login form mengandung token CSRF; Selenium mengisi form biasa.
 - Bila periode sudah ada di web, otomatis beralih ke halaman ubah.
-- Web saat ini menyediakan tahun 2025 dan 2026 (dibaca dinamis); sheet
-  tahun lain, misalnya 2027 sampai 2030, dilewati dengan pesan.
+- Daftar tahun dibaca dinamis dari web. Saat ini web menyediakan 2025
+  sampai 2030 dan semuanya terbukti bisa disimpan.
 - Baris yang seluruh nilainya 0 tidak dicentang dan tidak diinput.
 - Kolom M dan N otomatis dihitung web, tidak diinput.
 - Kotak input diisi tanpa jeda waktu; browser tetap headed.
